@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html>
+<head>
+ 	<link href="lib/layout.css" rel="stylesheet" type="text/css">
+ 	<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <!--[if lte IE 8]><script language="javascript" type="text/javascript" src="../excanvas.min.js"></script><![endif]-->
+    <script language="javascript" type="text/javascript" src="lib/jquery.js"></script>
+    <script language="javascript" type="text/javascript" src="lib/jquery.flot.js"></script>
+    <script language="javascript" type="text/javascript" src="lib/jquery.flot.crosshair.js"></script>
+	<title></title>
+</head>
+<body>
+<script>
+//fonction vites faites car les vrais oubliées à la cci
+const carre = (min,max,nbPas,func) => {
+	let pas = (max - min) / nbPas
+	var res = 0;
+	for(;min < max;min += pas){
+		res += func(min)
+	}
+	return res * pas
+}
+
+const trapeze = (min,max,nbPas,func) => {
+	let pas = (max - min) / nbPas
+	var res = 0;
+	for(;min < max;min += pas){
+		res += 0.5 * (func(min) + func(min + pas))
+	}
+	return res * pas
+}
+
+const simpson = (min,max,nbPas,func) => {
+	return carre(min,max,nbPas,func)
+	2/3+ trapeze(min,max,nbPas,func)/3
+}
+
+</script>
+
+<div id="placeholder" style="width:600px;height:300px;"></div>
+<input name="nbPas" placeholder="nbPas" type="text">
+<input name="func" placeholder="func" type="text">
+<input name="min" placeholder="min" type="text">
+<input name="max"  placeholder="max" type="text">
+<input name="name"  placeholder="name" type="text">
+<button id="generate">générer coube</button>
+<input name="resIntegration"  placeholder="name" type="text">
+
+<br>
+<input name="yMin"  placeholder="yMin" type="text">
+<input name="yMax"  placeholder="yMax" type="text">
+
+<script>
+window.cos = Math.cos;
+window.sin = Math.sin;
+window.PI = Math.PI;
+window.sqrt = Math.sqrt;
+
+	var defaultV = (selector,defaultVal) => {
+		let $jq = $("input[name="+selector+"]")
+		var val = $jq.val()
+		if(val !== undefined && val !== "")	return val
+		$jq.val(defaultVal)// si pas de valeur dans le champ on en met une
+		return defaultVal
+	}
+	let generateParamForGraphic = () => {
+		let iNbPas 	= 	+(defaultV("nbPas",1000)),
+			sFunc	= 	 defaultV("func","sin(x)"),
+			iMin	= 	+(defaultV("min",0)),
+			iMax	= 	+(defaultV("max",100)),
+			sName  	= 	 defaultV("name","sin")
+			$resIntegration = $("input[name=resIntegration]");
+		;
+		let iPas = (iMax - iMin) / iNbPas
+		let data = []
+		if (iMin > iMax) [iMax,iMin] = [iMin,iMax]
+		let func = new Function("x","return " + sFunc)
+
+		// on remplit les points de la function pour l'afficher
+		for (var i = iMin; i <= iMax; i += iPas) {
+	        data.push([i, func(i)]);
+	    }
+	    //on crée le label le -0.00 sera remplacer par la bonne valeur en fonction de la position de la souris
+	    let label = sName + "(x) = -0.00"
+		let paramFunc1 = {data,label}
+
+		var aire = simpson(iMin,iMax,iNbPas,func)
+		$resIntegration.val(aire)
+		return [paramFunc1]
+	}
+
+	let generateParamForAxe = () => {
+		let 
+			iyMax  	= 	 defaultV("yMax",10)
+			iyMin  	= 	 defaultV("yMin",-10)
+		;
+		return {
+            series: {
+                lines: { show: true }
+            },
+            crosshair: { mode: "x" },
+            grid: { hoverable: true, autoHighlight: false },
+            yaxis: { min: iyMin, max: iyMax }
+        }
+	}
+	$('#generate').click(() => generateGraph())
+</script>
+<script>
+let generateGraph = () => {
+	var plot;
+	$(function () {
+	    var sin = [], cos = [];
+	   /* for (var i = 0; i < 14; i += 0.1) {
+	        sin.push([i, Math.sin(i)]);
+	        cos.push([i, Math.cos(i)]);
+	    }*/
+
+	    plot = $.plot($("#placeholder"),
+	                     generateParamForGraphic(), generateParamForAxe());
+	    var legends = $("#placeholder .legendLabel");
+	    legends.each(function () {
+	        // fix the widths so they don't jump around
+	        $(this).css('width', $(this).width());
+	    });
+
+	    var updateLegendTimeout = null;
+	    var latestPosition = null;
+	    
+	    function updateLegend() {
+	        updateLegendTimeout = null;
+	        
+	        var pos = latestPosition;
+	        
+	        var axes = plot.getAxes();
+	        if (pos.x < axes.xaxis.min || pos.x > axes.xaxis.max ||
+	            pos.y < axes.yaxis.min || pos.y > axes.yaxis.max)
+	            return;
+
+	        var i, j, dataset = plot.getData();
+	        for (i = 0; i < dataset.length; ++i) {
+	            var series = dataset[i];
+
+	            // find the nearest points, x-wise
+	            for (j = 0; j < series.data.length; ++j)
+	                if (series.data[j][0] > pos.x)
+	                    break;
+	            
+	            // now interpolate
+	            var y, p1 = series.data[j - 1], p2 = series.data[j];
+	            if (p1 == null)
+	                y = p2[1];
+	            else if (p2 == null)
+	                y = p1[1];
+	            else
+	                y = p1[1] + (p2[1] - p1[1]) * (pos.x - p1[0]) / (p2[0] - p1[0]);
+
+	            legends.eq(i).text(series.label.replace(/=.*/, "= " + y.toFixed(2)));
+	        }
+	    }
+	    
+	    $("#placeholder").bind("plothover",  function (event, pos, item) {
+	        latestPosition = pos;
+	        if (!updateLegendTimeout)
+	            updateLegendTimeout = setTimeout(updateLegend, 50);
+	    });
+	});
+}
+</script>
+</body>
+</html>
