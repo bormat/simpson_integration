@@ -16,9 +16,9 @@ const carre = (min,max,nbPas,func) => {
 	let pas = (max - min) / nbPas
 	var res = 0;
 	for(;min < max;min += pas){
-		res += func(min)
+		res += func(min) * pas
 	}
-	return res * pas
+	return res 
 }
 
 const trapeze = (min,max,nbPas,func) => {
@@ -44,17 +44,20 @@ const simpson = (min,max,nbPas,func) => {
 <input name="max"  placeholder="max" type="text">
 <input name="name"  placeholder="name" type="text">
 <button id="generate">générer coube</button>
-<input name="resIntegration"  placeholder="name" type="text">
+<input name="resIntegration"  placeholder="aireCourbe" type="text">
+<input name="periode"  placeholder="période" type="text">
 
 <br>
 <input name="yMin"  placeholder="yMin" type="text">
 <input name="yMax"  placeholder="yMax" type="text">
 
+<div id="resultat"></div>
+
 <script>
-window.cos = Math.cos;
-window.sin = Math.sin;
-window.PI = Math.PI;
-window.sqrt = Math.sqrt;
+var funcMath = ["cos","exp","sin","PI","sqrt","max","min","pow","round","tan","abs",'floor','round']
+funcMath.forEach(function(name){
+	window[name] = Math[name]
+})
 
 	var defaultV = (selector,defaultVal) => {
 		let $jq = $("input[name="+selector+"]")
@@ -63,12 +66,21 @@ window.sqrt = Math.sqrt;
 		$jq.val(defaultVal)// si pas de valeur dans le champ on en met une
 		return defaultVal
 	}
+
+	let remplitArray = (data,func,iMin,iMax,iPas) => {
+		// on remplit les points de la function pour l'afficher
+		for (var i = iMin; i <= iMax; i += iPas) {
+	        data.push([i, func(i)]);
+	    }
+	}
+	//paramètre pour l'abscisse(min,max), le nombre de pas, la fonction, le nom de la fonction,
 	let generateParamForGraphic = () => {
 		let iNbPas 	= 	+(defaultV("nbPas",1000)),
-			sFunc	= 	 defaultV("func","sin(x)"),
+			sFunc	= 	 defaultV("func","x"),
 			iMin	= 	+(defaultV("min",0)),
-			iMax	= 	+(defaultV("max",100)),
+			iMax	= 	+(defaultV("max",20)),
 			sName  	= 	 defaultV("name","sin")
+			iPeriode =  +eval(defaultV("periode",20))
 			$resIntegration = $("input[name=resIntegration]");
 		;
 		let iPas = (iMax - iMin) / iNbPas
@@ -76,19 +88,45 @@ window.sqrt = Math.sqrt;
 		if (iMin > iMax) [iMax,iMin] = [iMin,iMax]
 		let func = new Function("x","return " + sFunc)
 
-		// on remplit les points de la function pour l'afficher
-		for (var i = iMin; i <= iMax; i += iPas) {
-	        data.push([i, func(i)]);
-	    }
+	    remplitArray(data,func,iMin,iMax,iPas)
+
 	    //on crée le label le -0.00 sera remplacer par la bonne valeur en fonction de la position de la souris
 	    let label = sName + "(x) = -0.00"
 		let paramFunc1 = {data,label}
 
 		var aire = simpson(iMin,iMax,iNbPas,func)
 		$resIntegration.val(aire)
-		return [paramFunc1]
-	}
+		var an0 = 1/iPeriode * simpson(-iPeriode/2,iPeriode/2,iNbPas,func);
+		$("#resultat").html(an0+"<br>");
+		var omega = 2* PI / iPeriode;
+		var ans = [];
+		var bns = [];
+		for(var i = 1; i < 50;++i){
+			var anF = new Function("x","return cos(" + i * omega + "* x) * ("+sFunc+")");
+			var an = 2/iPeriode * simpson(0,iPeriode,iNbPas,anF);
+			var bnF = new Function("x","return sin(" + i * omega + "* x) * ("+sFunc+")");
+			var bn = 2/iPeriode * simpson(0,iPeriode,iNbPas,bnF);
+			$("#resultat").append("<br>coef an=" + an + " bn=" + bn)
+			ans.push(an),
+			bns.push(bn)
+		}
+		let data2 = [];
+		let label2 = "fourrier reconsitution" + "(x) = -0.00"
 
+		//on crée une bonne fois pour toute la fonction d'approximation grace aux coef
+		var sFunc2 = "an0"
+		for(var i = 1 ;i < 50 - 1;++i){
+			sFunc2 += " + ans["+ i +"] * cos("+ i +"* omega * x) + bns["+ i +"]*sin("+ i +"* omega * x)"
+		}
+
+		var resEval;
+		var fourrierReconstitution = eval("resEval = function(x){return "+ sFunc2 + ";}");
+
+		remplitArray(data2,fourrierReconstitution,iMin,iMax,iPas)
+		let paramFunc2 = {data:data2,label:label2}
+		return [paramFunc1,paramFunc2]
+	}
+	//paramètre de l'axe y
 	let generateParamForAxe = () => {
 		let 
 			iyMax  	= 	 defaultV("yMax",10)
@@ -104,17 +142,12 @@ window.sqrt = Math.sqrt;
         }
 	}
 	$('#generate').click(() => generateGraph())
+	$('#calcFourrier').click(() => calcFourrier())
 </script>
 <script>
 let generateGraph = () => {
 	var plot;
 	$(function () {
-	    var sin = [], cos = [];
-	   /* for (var i = 0; i < 14; i += 0.1) {
-	        sin.push([i, Math.sin(i)]);
-	        cos.push([i, Math.cos(i)]);
-	    }*/
-
 	    plot = $.plot($("#placeholder"),
 	                     generateParamForGraphic(), generateParamForAxe());
 	    var legends = $("#placeholder .legendLabel");
