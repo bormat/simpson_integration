@@ -1,6 +1,5 @@
 (function(){
 "use strict";
-//paramètre pour l'abscisse(min,max), le nombre de pas, la fonction, le nom de la fonction,
 
 /* obtient le modulo positif alors que % peut retourner des négatifs*/
 const moduloPositive = (a,n) => {
@@ -27,13 +26,11 @@ const displayCoef = function([an0,ans,bns],iNbHarmonique){
 	$("#resultat").html(sRes)
 }
 
-const getXnormaliser = (iStartPeriod,iPeriode) => {
-	/** normaliser permet d'avoir un x dans les borne souhaitées
-	 * iStartPeriod,IendPeriod en décalant de la periode le x 
-	 */
-	return function(x){
-		return moduloPositive(x - iStartPeriod,iPeriode) + iStartPeriod;
-	}
+/** normaliser permet d'avoir un x dans les borne souhaitées
+ * [iStartPeriod, iStartPeriod + iPeriode] en décalant de la periode le x 
+ */
+const normaliseX = (iStartPeriod,iPeriode,x) => {
+	return moduloPositive(x - iStartPeriod,iPeriode) + iStartPeriod;
 }
 
 const getCoefs = (func,iPeriode,iNbHarmonique)=>{
@@ -61,7 +58,7 @@ const generateParamForGraphic = () => {
 
 	let	iMax	= 	+eval(defaultV("max","8*PI")),
 		iMin	= 	+eval(defaultV("min","-PI")),
-		iStartPeriod = +(eval(defaultV("startPeriod","0"))),
+		iStartPeriod = +(eval(defaultV("startPeriod","2"))),
 		iEndPeriod = +(eval(defaultV("endPeriod","2*PI")))
 	;
 
@@ -69,15 +66,14 @@ const generateParamForGraphic = () => {
 		sFunc	= 	 defaultV("func","x < PI ? PI : 0"),
 		sName  	= 	 defaultV("name","sin")
 	;
-	//check min max order and reverse id needed
+	//check min max order and reverse if needed
 	if (iStartPeriod > iEndPeriod) [iStartPeriod,iEndPeriod] = [iEndPeriod,iStartPeriod]
 	if (iMin > iMax) [iMax,iMin] = [iMin,iMax]
 
 
 	let iPeriode =  iEndPeriod - iStartPeriod
-	const normaliseX = getXnormaliser(iStartPeriod,iPeriode)
 	// on fait l'éval maintenant pour ne plus avoir à le faire à chaque appel
-	let func;eval("func = function(x){x = normaliseX(x); return "+ sFunc + ";}");
+	let func;eval("func = function(x){x = normaliseX(iStartPeriod,iPeriode,x); return "+ sFunc + ";}");
 	let coefs = getCoefs(func,iPeriode,iNbHarmonique)
 	displayCoef(coefs,iNbHarmonique)
 	var funcRebuild = getFourrierReconstitutionFunc(coefs,iPeriode,iNbHarmonique)

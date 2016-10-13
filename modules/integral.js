@@ -11,9 +11,9 @@
 	var res = 0;
 	let min = 0;
 	for(;min < max;min += pas){
-		res += func(min) * pas
+		res += func(min) 
 	}
-	return res
+	return res * pas
 }
 
 /**
