@@ -7,197 +7,28 @@
     <script language="javascript" type="text/javascript" src="lib/jquery.js"></script>
     <script language="javascript" type="text/javascript" src="lib/jquery.flot.js"></script>
     <script language="javascript" type="text/javascript" src="lib/jquery.flot.crosshair.js"></script>
+    <script src="modules/fourier.js"></script>
+    <script src="modules/utils.js"></script>
+    <script src="modules/integral.js"></script>
 	<title></title>
 </head>
 <body>
-<script>
-//fonction vites faites car les vrais oubliées à la cci
-const carre = (min,max,nbPas,func) => {
-	let pas = (max - min) / nbPas
-	var res = 0;
-	for(;min < max;min += pas){
-		res += func(min) * pas
-	}
-	return res 
-}
 
-const trapeze = (min,max,nbPas,func) => {
-	let pas = (max - min) / nbPas
-	var res = 0;
-	for(;min < max;min += pas){
-		res += 0.5 * (func(min) + func(min + pas))
-	}
-	return res * pas
-}
+  <div id="placeholder" style="width:600px;height:300px;"></div>
+  <input name="nbPas" placeholder="nbPas" type="text">
+  <input name="func" placeholder="func" type="text">
+  <input name="min" placeholder="min" type="text">
+  <input name="max"  placeholder="max" type="text">
+  <input name="name"  placeholder="name" type="text">
+  <button id="generate">générer coube</button>
+  <input name="resIntegration"  placeholder="aireCourbe" type="text">
+  <input name="periode"  placeholder="période" type="text">
 
-const simpson = (min,max,nbPas,func) => {
-	return carre(min,max,nbPas,func)
-	2/3+ trapeze(min,max,nbPas,func)/3
-}
+  <br>
+  <input name="yMin"  placeholder="yMin" type="text">
+  <input name="yMax"  placeholder="yMax" type="text">
 
-</script>
-
-<div id="placeholder" style="width:600px;height:300px;"></div>
-<input name="nbPas" placeholder="nbPas" type="text">
-<input name="func" placeholder="func" type="text">
-<input name="min" placeholder="min" type="text">
-<input name="max"  placeholder="max" type="text">
-<input name="name"  placeholder="name" type="text">
-<button id="generate">générer coube</button>
-<input name="resIntegration"  placeholder="aireCourbe" type="text">
-<input name="periode"  placeholder="période" type="text">
-
-<br>
-<input name="yMin"  placeholder="yMin" type="text">
-<input name="yMax"  placeholder="yMax" type="text">
-
-<div id="resultat"></div>
-
-<script>
-var funcMath = ["cos","exp","sin","PI","sqrt","max","min","pow","round","tan","abs",'floor','round']
-funcMath.forEach(function(name){
-	window[name] = Math[name]
-})
-
-	var defaultV = (selector,defaultVal) => {
-		let $jq = $("input[name="+selector+"]")
-		var val = $jq.val()
-		if(val !== undefined && val !== "")	return val
-		$jq.val(defaultVal)// si pas de valeur dans le champ on en met une
-		return defaultVal
-	}
-
-	let remplitArray = (data,func,iMin,iMax,iPas) => {
-		// on remplit les points de la function pour l'afficher
-		for (var i = iMin; i <= iMax; i += iPas) {
-	        data.push([i, func(i)]);
-	    }
-	}
-	//paramètre pour l'abscisse(min,max), le nombre de pas, la fonction, le nom de la fonction,
-	let generateParamForGraphic = () => {
-		let iNbPas 	= 	+(defaultV("nbPas",1000)),
-			sFunc	= 	 defaultV("func","x"),
-			iMin	= 	+(defaultV("min",0)),
-			iMax	= 	+(defaultV("max",20)),
-			sName  	= 	 defaultV("name","sin")
-			iPeriode =  +eval(defaultV("periode",20))
-			$resIntegration = $("input[name=resIntegration]");
-		;
-		let iPas = (iMax - iMin) / iNbPas
-		let data = []
-		if (iMin > iMax) [iMax,iMin] = [iMin,iMax]
-		let func = new Function("x","return " + sFunc)
-
-	    remplitArray(data,func,iMin,iMax,iPas)
-
-	    //on crée le label le -0.00 sera remplacer par la bonne valeur en fonction de la position de la souris
-	    let label = sName + "(x) = -0.00"
-		let paramFunc1 = {data,label}
-
-		var aire = simpson(iMin,iMax,iNbPas,func)
-		$resIntegration.val(aire)
-		var an0 = 1/iPeriode * simpson(-iPeriode/2,iPeriode/2,iNbPas,func);
-		$("#resultat").html(an0+"<br>");
-		var omega = 2* PI / iPeriode;
-		var ans = [];
-		var bns = [];
-		for(var i = 1; i < 50;++i){
-			var anF = new Function("x","return cos(" + i * omega + "* x) * ("+sFunc+")");
-			var an = 2/iPeriode * simpson(0,iPeriode,iNbPas,anF);
-			var bnF = new Function("x","return sin(" + i * omega + "* x) * ("+sFunc+")");
-			var bn = 2/iPeriode * simpson(0,iPeriode,iNbPas,bnF);
-			$("#resultat").append("<br>coef an=" + an + " bn=" + bn)
-			ans.push(an),
-			bns.push(bn)
-		}
-		let data2 = [];
-		let label2 = "fourrier reconsitution" + "(x) = -0.00"
-
-		//on crée une bonne fois pour toute la fonction d'approximation grace aux coef
-		var sFunc2 = "an0"
-		for(var i = 1 ;i < 50 - 1;++i){
-			sFunc2 += " + ans["+ i +"] * cos("+ i +"* omega * x) + bns["+ i +"]*sin("+ i +"* omega * x)"
-		}
-
-		var resEval;
-		var fourrierReconstitution = eval("resEval = function(x){return "+ sFunc2 + ";}");
-
-		remplitArray(data2,fourrierReconstitution,iMin,iMax,iPas)
-		let paramFunc2 = {data:data2,label:label2}
-		return [paramFunc1,paramFunc2]
-	}
-	//paramètre de l'axe y
-	let generateParamForAxe = () => {
-		let 
-			iyMax  	= 	 defaultV("yMax",10)
-			iyMin  	= 	 defaultV("yMin",-10)
-		;
-		return {
-            series: {
-                lines: { show: true }
-            },
-            crosshair: { mode: "x" },
-            grid: { hoverable: true, autoHighlight: false },
-            yaxis: { min: iyMin, max: iyMax }
-        }
-	}
-	$('#generate').click(() => generateGraph())
-	$('#calcFourrier').click(() => calcFourrier())
-</script>
-<script>
-let generateGraph = () => {
-	var plot;
-	$(function () {
-	    plot = $.plot($("#placeholder"),
-	                     generateParamForGraphic(), generateParamForAxe());
-	    var legends = $("#placeholder .legendLabel");
-	    legends.each(function () {
-	        // fix the widths so they don't jump around
-	        $(this).css('width', $(this).width());
-	    });
-
-	    var updateLegendTimeout = null;
-	    var latestPosition = null;
-	    
-	    function updateLegend() {
-	        updateLegendTimeout = null;
-	        
-	        var pos = latestPosition;
-	        
-	        var axes = plot.getAxes();
-	        if (pos.x < axes.xaxis.min || pos.x > axes.xaxis.max ||
-	            pos.y < axes.yaxis.min || pos.y > axes.yaxis.max)
-	            return;
-
-	        var i, j, dataset = plot.getData();
-	        for (i = 0; i < dataset.length; ++i) {
-	            var series = dataset[i];
-
-	            // find the nearest points, x-wise
-	            for (j = 0; j < series.data.length; ++j)
-	                if (series.data[j][0] > pos.x)
-	                    break;
-	            
-	            // now interpolate
-	            var y, p1 = series.data[j - 1], p2 = series.data[j];
-	            if (p1 == null)
-	                y = p2[1];
-	            else if (p2 == null)
-	                y = p1[1];
-	            else
-	                y = p1[1] + (p2[1] - p1[1]) * (pos.x - p1[0]) / (p2[0] - p1[0]);
-
-	            legends.eq(i).text(series.label.replace(/=.*/, "= " + y.toFixed(2)));
-	        }
-	    }
-	    
-	    $("#placeholder").bind("plothover",  function (event, pos, item) {
-	        latestPosition = pos;
-	        if (!updateLegendTimeout)
-	            updateLegendTimeout = setTimeout(updateLegend, 50);
-	    });
-	});
-}
-</script>
+  <div id="resultat"></div>
 </body>
+<script src="modules/main.js"></script>
 </html>
