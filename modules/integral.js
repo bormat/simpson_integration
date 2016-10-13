@@ -1,12 +1,15 @@
 (function(){
+"use strict";
+
 /**
  *
  * @param {} -
  * @return
  */
- const carre = (min,max,nbPas,func) => {
-	let pas = (max - min) / nbPas
+ const carre = (max,nbPas,func) => {
+	let pas = (max - 0) / nbPas
 	var res = 0;
+	let min = 0;
 	for(;min < max;min += pas){
 		res += func(min) * pas
 	}
@@ -18,9 +21,10 @@
  * @param {} -
  * @return
  */
-const trapeze = (min,max,nbPas,func) => {
-	let pas = (max - min) / nbPas
+const trapeze = (max,nbPas,func) => {
+	let pas = (max - 0) / nbPas
 	var res = 0;
+	let min = 0;
 	for(;min < max;min += pas){
 		res += 0.5 * (func(min) + func(min + pas))
 	}
@@ -32,9 +36,8 @@ const trapeze = (min,max,nbPas,func) => {
  * @param {} -
  * @return
  */
-const simpson = (min,max,nbPas,func) => {
-	return carre(min,max,nbPas,func)
-	2/3+ trapeze(min,max,nbPas,func)/3
+const simpson = (iPeriode,nbPas,func) => {
+	return 2/3 * carre(iPeriode,nbPas,func) + trapeze(iPeriode,nbPas,func)/3
 }
 
 window.carre = carre
