@@ -47,6 +47,8 @@ const generateParamForAxe = () => {
     iyMax = defaultV("yMax",10),
     iyMin = defaultV("yMin",-10)
   ;
+  if (iyMin > iyMax) [iyMax,iyMin] = [iyMin,iyMax]
+
   return {
     series: {
       lines: { show: true }

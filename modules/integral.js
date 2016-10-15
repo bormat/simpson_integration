@@ -1,46 +1,21 @@
 (function(){
 "use strict";
-
-/**
- *
- * @param {} -
- * @return
- */
- const carre = (max,nbPas,func) => {
-	let pas = (max - 0) / nbPas
-	var res = 0;
-	let min = 0;
-	for(;min < max;min += pas){
-		res += func(min) 
+const simpson = (iStartPeriod,iPeriode,nbPas,func) => {
+	let pas = iPeriode / nbPas,
+	 	max = iStartPeriod + iPeriode
+	;
+	const getIntegrale = (callbackMethod) => {
+		let x = iStartPeriod;
+		let res = 0;
+		for(;x < max;x += pas)
+			res += callbackMethod(x)
+		return res * pas
 	}
-	return res * pas
+	const carre = (x) => func(x)
+	const trapeze = (x) => 0.5 * (func(x) + func(x + pas))
+	return (2 * getIntegrale(carre) + getIntegrale(trapeze))/3
+	return getIntegrale(trapeze)
+	return getIntegrale(carre);
 }
-
-/**
- *
- * @param {} -
- * @return
- */
-const trapeze = (max,nbPas,func) => {
-	let pas = (max - 0) / nbPas
-	var res = 0;
-	let min = 0;
-	for(;min < max;min += pas){
-		res += 0.5 * (func(min) + func(min + pas))
-	}
-	return res * pas
-}
-
-/**
- *
- * @param {} -
- * @return
- */
-const simpson = (iPeriode,nbPas,func) => {
-	return 2/3 * carre(iPeriode,nbPas,func) + trapeze(iPeriode,nbPas,func)/3
-}
-
-window.carre = carre
-window.trapeze = trapeze
 window.simpson = simpson
 })()
