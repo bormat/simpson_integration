@@ -5,29 +5,92 @@
  	<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
     <!--[if lte IE 8]><script language="javascript" type="text/javascript" src="../excanvas.min.js"></script><![endif]-->
     <script language="javascript" type="text/javascript" src="lib/jquery.js"></script>
+    <script language="javascript" type="text/javascript" src="lib/jquery.fullpage.js"></script>
     <script language="javascript" type="text/javascript" src="lib/jquery.flot.js"></script>
     <script language="javascript" type="text/javascript" src="lib/jquery.flot.crosshair.js"></script>
+
     <script src="modules/fourier.js"></script>
     <script src="modules/utils.js"></script>
     <script src="modules/integral.js"></script>
-	<title></title>
+	<title>fourier</title>
+  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="lib/font-awesome/css/font-awesome.min.css">
+  <link rel="stylesheet" href="lib/jquery.fullpage.min.css">
 </head>
 <body>
-	<div id="info"></div>
-	<div id="placeholder" style="width:600px;height:300px;"></div>
-	début periode : <input name="startPeriod"  placeholder="période" type="text"><br>
-	fin periode : <input name="endPeriod"  placeholder="période" type="text"><br>
-	nbPas pour calculer l'aire et pour créer les points de la courbe : <input name="nbPas" placeholder="nbPas" type="text"><br>
-	func:<input name="func" placeholder="func" type="text"><br>
-	nb Harmonique:<input name="nbHarmonique" placeholder="nbHarmonique" type="text"><br>
-	<button id="generate">générer coube</button><br><br>
-	min:<input name="min" placeholder="min" type="text"><br>
-	max:<input name="max"  placeholder="max" type="text"><br>
-	yMin:<input name="yMin"  placeholder="yMin" type="text"><br>
-	yMax:<input name="yMax"  placeholder="yMax" type="text"><br>
-	name:<input name="name"  placeholder="name" type="text"><br>
+  <div id="fullpage">
+    <div class="section">
+      <div id="placeholder"></div>
+    	<div id="info"></div>
+      <div class="group">
+        <input name="startPeriod" type="text" required>
+        <span class="highlight"></span>
+        <span class="bar"></span>
+        <label>début periode</label>
+      </div>
+      <div class="group">
+        <input name="endPeriod" type="text" required>
+        <span class="highlight"></span>
+        <span class="bar"></span>
+        <label>fin periode</label>
+      </div>
+      <div class="group">
+        <input name="nbPas" type="text" required>
+        <span class="highlight"></span>
+        <span class="bar"></span>
+        <label>nbPas pour calculer l'aire et pour créer les points de la courbe</label>
+      </div>
+      <div class="group">
+        <input name="func" type="text" required>
+        <span class="highlight"></span>
+        <span class="bar"></span>
+        <label>func</label>
+      </div>
+      <div class="group">
+        <input name="nbHarmonique" type="text" required>
+        <span class="highlight"></span>
+        <span class="bar"></span>
+        <label>nb Harmonique</label>
+      </div>
 
-  <div id="resultat"></div>
+    	<button  class="btn" type="button" id="generate">Générer Courbe</button>
+
+      <div class="group">
+        <input name="min" type="text" required>
+        <span class="highlight"></span>
+        <span class="bar"></span>
+        <label>min</label>
+      </div>
+      <div class="group">
+        <input name="max" type="text" required>
+        <span class="highlight"></span>
+        <span class="bar"></span>
+        <label>max</label>
+      </div>
+      <div class="group">
+        <input name="yMin" type="text" required>
+        <span class="highlight"></span>
+        <span class="bar"></span>
+        <label>yMin</label>
+      </div>
+      <div class="group">
+        <input name="yMax" type="text" required>
+        <span class="highlight"></span>
+        <span class="bar"></span>
+        <label>yMax</label>
+      </div>
+      <div class="group">
+        <input name="name" type="text" required>
+        <span class="highlight"></span>
+        <span class="bar"></span>
+        <label>name</label>
+      </div>
+
+    </div>
+    <div class="section">
+      <div id="resultat"></div>
+    </div>
+  </div>
 </body>
 <script src="modules/main.js"></script>
 </html>
