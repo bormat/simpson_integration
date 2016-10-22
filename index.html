@@ -1,94 +1,126 @@
 <!DOCTYPE html>
 <html>
 <head>
- 	<link href="lib/layout.css" rel="stylesheet" type="text/css">
- 	<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
-    <!--[if lte IE 8]><script language="javascript" type="text/javascript" src="../excanvas.min.js"></script><![endif]-->
-    <script language="javascript" type="text/javascript" src="lib/jquery.js"></script>
-    <script language="javascript" type="text/javascript" src="lib/jquery.fullpage.js"></script>
-    <script language="javascript" type="text/javascript" src="lib/jquery.flot.js"></script>
-    <script language="javascript" type="text/javascript" src="lib/jquery.flot.crosshair.js"></script>
 
-    <script src="modules/fourier.js"></script>
-    <script src="modules/utils.js"></script>
-    <script src="modules/integral.js"></script>
+ 	<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+
+  <!--[if lte IE 8]><script language="javascript" type="text/javascript" src="../excanvas.min.js"></script><![endif]-->
+
+  <script language="javascript" type="text/javascript" src="lib/jquery.js"></script>
+  <script language="javascript" type="text/javascript" src="lib/jquery.fullpage.js"></script>
+  <script language="javascript" type="text/javascript" src="lib/jquery.flot.js"></script>
+  <script language="javascript" type="text/javascript" src="lib/jquery.flot.crosshair.js"></script>
+
+  <script src="modules/fourier.js"></script>
+  <script src="modules/utils.js"></script>
+  <script src="modules/integral.js"></script>
+  <script src="modules/graphing.js"></script>
+
 	<title>fourier</title>
-  <link rel="stylesheet" href="style.css">
+
   <link rel="stylesheet" href="lib/font-awesome/css/font-awesome.min.css">
   <link rel="stylesheet" href="lib/jquery.fullpage.min.css">
+  <link rel="stylesheet" href="lib/layout.css">
+  <link rel="stylesheet" href="style.css">
+
 </head>
 <body>
   <div id="fullpage">
+    <div class="section"><div class="horizontal">
+      <div class="vertical">
+        <div id="placeholder" style="width:100%;height:600px;"></div>
+        <div class="vertical" id="energie-data">
+          <div class="horizontal">
+            <div id="energie-origin"></div>
+            <div id="energie-reconst"></div>
+          </div>
+          <div id="energie-err"></div>
+        </div>
+      </div>
+      <div id="fourier-inputs">
+        <div class="horizontal">
+          <div class="group">
+            <input name="func" type="text" required>
+            <span class="highlight"></span>
+            <span class="bar"></span>
+            <label>fonction</label>
+          </div>
+          <div class="group" style="display:none">
+            <input name="name" type="text" required>
+            <span class="highlight"></span>
+            <span class="bar"></span>
+            <label>label</label>
+          </div>
+        </div>
+        <div class="horizontal">
+          <div class="group">
+            <input name="startPeriod" type="text" required>
+            <span class="highlight"></span>
+            <span class="bar"></span>
+            <label>période (début)</label>
+          </div>
+          <div class="group">
+            <input name="endPeriod" type="text" required>
+            <span class="highlight"></span>
+            <span class="bar"></span>
+            <label>période (fin)</label>
+          </div>
+        </div>
+
+        <div class="horizontal">
+          <div class="group">
+            <input name="nbPas" type="text" required>
+            <span class="highlight"></span>
+            <span class="bar"></span>
+            <label>pas (calcul aire / points de la courbe)</label>
+          </div>
+          <div class="group">
+            <input name="nbHarmonique" type="text" required>
+            <span class="highlight"></span>
+            <span class="bar"></span>
+            <label>harmoniques</label>
+          </div>
+        </div>
+        <br />
+        <br />
+        <div class="horizontal">
+          <div class="group">
+            <input name="min" type="text" required>
+            <span class="highlight"></span>
+            <span class="bar"></span>
+            <label>x (min)</label>
+          </div>
+          <div class="group">
+            <input name="max" type="text" required>
+            <span class="highlight"></span>
+            <span class="bar"></span>
+            <label>x (max)</label>
+          </div>
+        </div>
+        <div class="horizontal">
+          <div class="group">
+            <input name="yMin" type="text" required>
+            <span class="highlight"></span>
+            <span class="bar"></span>
+            <label>y (min)</label>
+          </div>
+          <div class="group">
+            <input name="yMax" type="text" required>
+            <span class="highlight"></span>
+            <span class="bar"></span>
+            <label>y (max)</label>
+          </div>
+        </div>
+
+        <button  class="btn" type="button" id="generate">Générer Courbe</button>
+        <div id="script-time"></div>
+      </div>
+    </div></div>
     <div class="section">
-      <div id="placeholder"></div>
-    	<div id="info"></div>
-      <div class="group">
-        <input name="startPeriod" type="text" required>
-        <span class="highlight"></span>
-        <span class="bar"></span>
-        <label>début periode</label>
-      </div>
-      <div class="group">
-        <input name="endPeriod" type="text" required>
-        <span class="highlight"></span>
-        <span class="bar"></span>
-        <label>fin periode</label>
-      </div>
-      <div class="group">
-        <input name="nbPas" type="text" required>
-        <span class="highlight"></span>
-        <span class="bar"></span>
-        <label>nbPas pour calculer l'aire et pour créer les points de la courbe</label>
-      </div>
-      <div class="group">
-        <input name="func" type="text" required>
-        <span class="highlight"></span>
-        <span class="bar"></span>
-        <label>func</label>
-      </div>
-      <div class="group">
-        <input name="nbHarmonique" type="text" required>
-        <span class="highlight"></span>
-        <span class="bar"></span>
-        <label>nb Harmonique</label>
-      </div>
-
-    	<button  class="btn" type="button" id="generate">Générer Courbe</button>
-
-      <div class="group">
-        <input name="min" type="text" required>
-        <span class="highlight"></span>
-        <span class="bar"></span>
-        <label>min</label>
-      </div>
-      <div class="group">
-        <input name="max" type="text" required>
-        <span class="highlight"></span>
-        <span class="bar"></span>
-        <label>max</label>
-      </div>
-      <div class="group">
-        <input name="yMin" type="text" required>
-        <span class="highlight"></span>
-        <span class="bar"></span>
-        <label>yMin</label>
-      </div>
-      <div class="group">
-        <input name="yMax" type="text" required>
-        <span class="highlight"></span>
-        <span class="bar"></span>
-        <label>yMax</label>
-      </div>
-      <div class="group">
-        <input name="name" type="text" required>
-        <span class="highlight"></span>
-        <span class="bar"></span>
-        <label>name</label>
-      </div>
-
+      <div id="resultat1"></div>
     </div>
     <div class="section">
-      <div id="resultat"></div>
+      <div id="resultat2"></div>
     </div>
   </div>
 </body>
