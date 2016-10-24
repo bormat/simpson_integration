@@ -3,6 +3,7 @@
 	const simpson = ( iStartPeriod, iPeriode, nbPas, func ) => {
 		let pas = iPeriode / nbPas,
 			max = iStartPeriod + iPeriode;
+		pas = .0001;
 		const getIntegrale = ( callbackMethod ) => {
 			let x = iStartPeriod;
 			let res = 0;
