@@ -29,17 +29,11 @@
 		" = " + an0.toFixed( 15 ) + "</div>"
 		let iNbHarmonique = ans.length;
 
-		for ( let i = 1; i <= 52; ++i ) {
+		for ( let i = 1; i <= ans.length; ++i ) {
 			let n = i - 1
 			sRes += "<div><b>a" + i + "</b> = " + ans[n].toFixed( 15 ) + "</div><div> <b>b" + i + "</b> = " + bns[n].toFixed( 15 ) + "</div>"
 		}
-		$( "#resultat1" ).html( sRes )
-		sRes = ""
-		for ( let i = 53; i <= iNbHarmonique; ++i ) {
-			let n = i - 1
-			sRes += "<div><b>a" + i + "</b> = " + ans[n].toFixed( 15 ) + "</div><div> <b>b" + i + "</b> = " + bns[n].toFixed( 15 ) + "</div>"
-		}
-		$( "#resultat2" ).html( sRes )
+		$( "#resultat-content" ).html( sRes )
 	}
 	window.displayCoef = displayCoef
 

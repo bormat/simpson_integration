@@ -7,16 +7,16 @@
 	let legends;
 
 	const defaultInputValues = {
-		max: "8*PI",
-		min: "-PI",
+		max: "12",
+		min: "0",
 		startPeriod: "0",
 		endPeriod: "2*PI",
 		nbPas: 1000,
 		nbHarmonique: 100,
 		func: "x < PI ? PI :  0",
 		name: "f",
-		yMax: 10,
-		yMin: -10
+		yMax: 5,
+		yMin: -2
 	}
 
 	const generateParamForGraph = ( ) => {
@@ -164,4 +164,5 @@
 		})
 	}
 	window.generateGraph = generateGraph
+	window.defaultInputValues = defaultInputValues
 })( )
