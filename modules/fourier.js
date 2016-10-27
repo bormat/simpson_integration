@@ -33,7 +33,11 @@
 			let n = i - 1
 			sRes += "<div><b>a" + i + "</b> = " + ans[n].toFixed( 15 ) + "</div><div> <b>b" + i + "</b> = " + bns[n].toFixed( 15 ) + "</div>"
 		}
-		$( "#resultat-content" ).html( sRes )
+		$( "#resultat-content" )
+			.html( sRes )
+			.css( 'display', 'flex' )
+		$( "#empty-msg" ).css( 'display', 'none' )
+
 	}
 	window.displayCoef = displayCoef
 
